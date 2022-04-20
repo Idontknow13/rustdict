@@ -11,7 +11,7 @@ pub fn define(word: &str) -> Result<Vec<Word>, Box<dyn std::error::Error>> {
     Ok(data)
 }
 
-impl Display for data::Word {
+impl Display for Word {
     fn fmt(&self, fmtr: &mut Formatter) -> std::fmt::Result {
         writeln!(fmtr, "")?;
 
@@ -23,6 +23,7 @@ impl Display for data::Word {
 
         for meaning in self.meanings.iter() {
             writeln!(fmtr, "- {}", meaning.part_of_speech)?;
+
             for (num, definition) in meaning.definitions.iter().enumerate() {
                 writeln!(fmtr, "  {}: {}", num + 1, definition.definition)?;
             }
