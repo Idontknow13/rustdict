@@ -1,4 +1,4 @@
-# Rustdict
+# :green_book: Rustdict
 
 A dictionary CLI tool written in Rust inspired by
 BetaPictoris' [dict](https://github.com/BetaPictoris/dict) as well as
