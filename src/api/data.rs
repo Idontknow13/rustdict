@@ -4,20 +4,20 @@
 
 use serde::Deserialize;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 pub struct Word {
     word: String,
     phonetics: Vec<PhoneticMetadata>,
     meanings: Vec<Definition>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 pub struct PhoneticMetadata {
     text: Option<String>,
     audio: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 pub struct Definition {
     #[serde(rename = "partOfSpeech")]
     part_of_speech: String,
@@ -26,7 +26,7 @@ pub struct Definition {
     antonyms: Vec<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Default, Deserialize)]
 pub struct DefinitionBody {
     definition: String,
 }
