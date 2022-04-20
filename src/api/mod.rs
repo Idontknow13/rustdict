@@ -1,5 +1,4 @@
 pub mod data;
-pub mod errors;
 use data::*;
 
 pub fn define(word: &str) -> Result<Vec<Word>, Box<dyn std::error::Error>> {
