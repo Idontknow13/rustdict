@@ -4,12 +4,12 @@ use std::error::Error;
 use std::fmt::{Display, Formatter};
 
 #[derive(Debug)]
-pub struct CLINoArgsError {}
+pub struct CLIArgsError {}
 
-impl Error for CLINoArgsError {}
+impl Error for CLIArgsError {}
 
-impl Display for CLINoArgsError {
+impl Display for CLIArgsError {
     fn fmt(&self, fmtr: &mut Formatter) -> std::fmt::Result {
-        write!(fmtr, "CLI Runtime Error: No Arguments Specified")
+        write!(fmtr, "Insufficient Arguments Specified")
     }
 }
