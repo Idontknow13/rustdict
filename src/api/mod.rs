@@ -23,21 +23,17 @@ pub fn define_urban(word: &str) -> Result<UrbanContainer, Box<dyn std::error::Er
     Ok(data)
 }
 
+pub fn print_colored(msg: &str) -> ansi_term::ANSIGenericString<'_, str> {
+    YELLOW.bold().on(VIOLET).paint(format!(" {msg} "))
+}
+
 impl Display for Word {
     fn fmt(&self, fmtr: &mut Formatter) -> std::fmt::Result {
         writeln!(fmtr)?;
 
         for phonetic in self.phonetics.iter() {
             if let Some(phoneme) = &phonetic.text {
-                writeln!(
-                    fmtr,
-                    "{}   {}",
-                    YELLOW
-                        .bold()
-                        .on(VIOLET)
-                        .paint(format!(" {} ", self.word.as_str())),
-                    phoneme
-                )?;
+                writeln!(fmtr, "{}   {}", print_colored(self.word.as_str()), phoneme)?;
             }
         }
 
@@ -58,11 +54,7 @@ impl Display for UrbanContainer {
         writeln!(fmtr)?;
 
         let main_word = &self.definitions[0].word;
-        writeln!(
-            fmtr,
-            "{}",
-            YELLOW.bold().on(VIOLET).paint(format!(" {main_word} "))
-        )?;
+        writeln!(fmtr, "{}", print_colored(main_word))?;
 
         for definition in self.definitions.iter() {
             let clean_definition = definition
