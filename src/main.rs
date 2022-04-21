@@ -55,23 +55,24 @@ fn try_define(word: &str) {
         definitions
             .iter()
             .for_each(|definition| print!("{definition}"));
-        return;
+    } else {
+        print!("{HELP}");
     }
-    print!("{HELP}");
 }
 
 fn try_define_urban(word: &str) {
     if let Ok(definitions) = api::define_urban(word) {
         print!("{definitions}");
-        return;
+    } else {
+        println!("Urban Dictionary failed to make a connection. Please try again later.");
+        print!("{HELP}");
     }
-    print!("{HELP}");
 }
 
 fn get_semantics(word: &str, semantic: Semantics) {
     let word_def = api::define(word).expect("No definitions found");
     let semantics = get_semantics_helper(&word_def, &semantic);
-    println!("{word}");
+    println!("{}", api::print_colored(word));
     println!("  {semantic:?}: {semantics:?}");
 }
 
