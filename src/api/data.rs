@@ -32,6 +32,7 @@ pub struct DefinitionBody {
 
 #[derive(Clone, Debug, Default, Deserialize)]
 pub struct UrbanContainer {
+    #[serde(rename = "list")]
     pub definitions: Vec<UrbanWord>,
 }
 
