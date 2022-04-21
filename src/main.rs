@@ -33,8 +33,20 @@ fn cli(args: &[String]) {
             "-h" | "--help" => print!("{HELP}"),
             _ => try_define(args[0].as_str()),
         }
-    } else {
-        argparse(args)
+        return;
+    }
+    argparse(args)
+}
+
+fn argparse(args: &[String]) {
+    match args[0].as_str() {
+        "-s" | "--synonym" => todo!(),
+        "-a" | "--antonym" => todo!(),
+        "-u" | "--urban" => try_define_urban(args[1].as_str()),
+        "-t" | "--top" => todo!(),
+        "-c" | "--category" if args.len() > 3 => todo!(),
+        "-h" | "--help" => print!("{HELP}"),
+        _ => todo!(),
     }
 }
 
@@ -43,19 +55,16 @@ fn try_define(word: &str) {
         definitions
             .iter()
             .for_each(|definition| print!("{definition}"));
-    } else {
-        print!("{HELP}");
+        return;
     }
+    print!("{HELP}");
 }
 
-fn argparse(args: &[String]) {
-    match args[0].as_str() {
-        "-s" | "--synonym" => todo!(),
-        "-a" | "--antonym" => todo!(),
-        "-u" | "--urban" => todo!(),
-        "-t" | "--top" => todo!(),
-        "-c" | "--category" if args.len() > 3 => todo!(),
-        "-h" | "--help" => print!("{HELP}"),
-        _ => todo!(),
+fn try_define_urban(word: &str) {
+    if let Some(definitions) = api::define_urban(word).ok() {
+        print!("{definitions}");
+        return;
+    } else {
+        print!("{HELP}");
     }
 }
