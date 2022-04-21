@@ -45,12 +45,13 @@ fn argparse(args: &[String]) {
         "-a" | "--antonym" => get_semantics(args[1].as_str(), Semantics::Antonyms),
         "-u" | "--urban" => try_define_urban(args[1].as_str()),
         "-c" | "--category" if args.len() > 3 => todo!(),
-        "-h" | "--help" | _ => print!("{HELP}"),
+        "-h" | "--help" => print!("{HELP}"),
+        _ => print!("{HELP}"),
     }
 }
 
 fn try_define(word: &str) {
-    if let Some(definitions) = api::define(word).ok() {
+    if let Ok(definitions) = api::define(word) {
         definitions
             .iter()
             .for_each(|definition| print!("{definition}"));
@@ -60,12 +61,11 @@ fn try_define(word: &str) {
 }
 
 fn try_define_urban(word: &str) {
-    if let Some(definitions) = api::define_urban(word).ok() {
+    if let Ok(definitions) = api::define_urban(word) {
         print!("{definitions}");
         return;
-    } else {
-        print!("{HELP}");
     }
+    print!("{HELP}");
 }
 
 fn get_semantics(word: &str, semantic: Semantics) {

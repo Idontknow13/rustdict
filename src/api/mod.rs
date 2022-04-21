@@ -25,7 +25,7 @@ pub fn define_urban(word: &str) -> Result<UrbanContainer, Box<dyn std::error::Er
 
 impl Display for Word {
     fn fmt(&self, fmtr: &mut Formatter) -> std::fmt::Result {
-        writeln!(fmtr, "")?;
+        writeln!(fmtr)?;
 
         for phonetic in self.phonetics.iter() {
             if let Some(phoneme) = &phonetic.text {
@@ -55,7 +55,7 @@ impl Display for Word {
 
 impl Display for UrbanContainer {
     fn fmt(&self, fmtr: &mut Formatter) -> std::fmt::Result {
-        writeln!(fmtr, "")?;
+        writeln!(fmtr)?;
 
         let main_word = &self.definitions[0].word;
         writeln!(
@@ -70,7 +70,11 @@ impl Display for UrbanContainer {
                 .chars()
                 .filter(|chr| !(chr == &'\r' || chr == &'\n' || chr == &'[' || chr == &']'))
                 .collect::<String>();
-            writeln!(fmtr, "  - {} (by: {})", clean_definition, definition.author)?;
+            writeln!(
+                fmtr,
+                "  ー {} (by: {})",
+                clean_definition, definition.author
+            )?;
         }
 
         Ok(())
