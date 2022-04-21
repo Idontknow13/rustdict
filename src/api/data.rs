@@ -31,6 +31,11 @@ pub struct DefinitionBody {
 //* Urban Dictionary Fields *//
 
 #[derive(Clone, Debug, Default, Deserialize)]
+pub struct UrbanContainer {
+    pub definitions: Vec<UrbanWord>,
+}
+
+#[derive(Clone, Debug, Default, Deserialize)]
 pub struct UrbanWord {
     pub word: String,
     pub definition: String,
