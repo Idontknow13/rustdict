@@ -1,7 +1,11 @@
 pub mod data;
 use data::*;
 
+use ansi_term::Colour;
 use std::fmt::{Display, Formatter};
+
+const YELLOW: Colour = Colour::RGB(255, 255, 128);
+const VIOLET: Colour = Colour::RGB(102, 0, 255);
 
 pub fn define(word: &str) -> Result<Vec<Word>, Box<dyn std::error::Error>> {
     let request_url = format!("https://api.dictionaryapi.dev/api/v2/entries/en/{word}");
@@ -25,7 +29,15 @@ impl Display for Word {
 
         for phonetic in self.phonetics.iter() {
             if let Some(phoneme) = &phonetic.text {
-                writeln!(fmtr, "{}    {}", self.word, phoneme)?;
+                writeln!(
+                    fmtr,
+                    "{}   {}",
+                    YELLOW
+                        .bold()
+                        .on(VIOLET)
+                        .paint(format!(" {} ", self.word.as_str())),
+                    phoneme
+                )?;
             }
         }
 
@@ -46,7 +58,11 @@ impl Display for UrbanContainer {
         writeln!(fmtr, "")?;
 
         let main_word = &self.definitions[0].word;
-        writeln!(fmtr, "{main_word}")?;
+        writeln!(
+            fmtr,
+            "{}",
+            YELLOW.bold().on(VIOLET).paint(format!(" {main_word} "))
+        )?;
 
         for definition in self.definitions.iter() {
             let clean_definition = definition
