@@ -2,6 +2,12 @@
 // needed for the app's custom API.
 use serde::Deserialize;
 
+#[derive(Debug)]
+pub enum Semantics {
+    Synonyms,
+    Antonyms,
+}
+
 #[derive(Clone, Debug, Default, Deserialize)]
 pub struct Word {
     pub word: String,
