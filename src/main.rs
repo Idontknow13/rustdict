@@ -6,6 +6,7 @@
 //!
 
 mod api;
+use api::data::*;
 
 const HELP: &str = r#"
 RustDict - a dictionary lookup tool written in Rust.
@@ -40,13 +41,11 @@ fn cli(args: &[String]) {
 
 fn argparse(args: &[String]) {
     match args[0].as_str() {
-        "-s" | "--synonym" => todo!(),
-        "-a" | "--antonym" => todo!(),
+        "-s" | "--synonym" => get_semantics(args[1].as_str(), Semantics::Synonyms),
+        "-a" | "--antonym" => get_semantics(args[1].as_str(), Semantics::Antonyms),
         "-u" | "--urban" => try_define_urban(args[1].as_str()),
-        "-t" | "--top" => todo!(),
         "-c" | "--category" if args.len() > 3 => todo!(),
-        "-h" | "--help" => print!("{HELP}"),
-        _ => todo!(),
+        "-h" | "--help" | _ => print!("{HELP}"),
     }
 }
 
@@ -67,4 +66,22 @@ fn try_define_urban(word: &str) {
     } else {
         print!("{HELP}");
     }
+}
+
+fn get_semantics(word: &str, semantic: Semantics) {
+    let word_def = api::define(word).expect("No definitions found");
+    let semantics = get_semantics_helper(&word_def, &semantic);
+    println!("{word}");
+    println!("  {semantic:?}: {semantics:?}");
+}
+
+fn get_semantics_helper(definitions: &[Word], semantic: &Semantics) -> Vec<String> {
+    let mut semantics = vec![];
+    for word in definitions {
+        word.meanings.iter().for_each(|def| match semantic {
+            api::data::Semantics::Synonyms => semantics.push(def.synonyms.clone()),
+            api::data::Semantics::Antonyms => semantics.push(def.antonyms.clone()),
+        });
+    }
+    semantics.into_iter().flatten().collect()
 }
