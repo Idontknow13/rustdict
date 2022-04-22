@@ -11,13 +11,17 @@ const HELP: &str = r#"
 RustDict - a dictionary lookup tool written in Rust.
 
 USAGE:
-    rd [<OPTION>] [<PARAM>] [WORD]
+    rdef [<OPTION>] [<PARAM>] [WORD]
 
 OPTIONS:
     -h / --help                         Display this help message
     -u / --urban                        Grab the urban dictionary definition of the word
-    -t / --top                          Grab the top definition of the word
-    -c / --category [<PART_OF_SPEECH>]  Grab the definition of a word with a specific part of speech.
+
+EXAMPLE USAGE:
+    rdef -h                             Prints this help message
+    rdef yester                         Defines the word "yester"
+    rdef -u ligma                       Defines "ligma" from Urban Dictionary
+    rdef -u "poison pill"               Defines "poison pill" from Urban Dictionary
 "#;
 
 fn main() {
@@ -39,7 +43,6 @@ fn cli(args: &[String]) {
 fn argparse(args: &[String]) {
     match args[0].as_str() {
         "-u" | "--urban" => try_define_urban(args[1].as_str()),
-        "-c" | "--category" if args.len() == 4 => todo!(),
         _ => print!("{HELP}"),
     }
 }
@@ -50,7 +53,7 @@ fn try_define(word: &str) {
             .iter()
             .for_each(|definition| print!("{definition}"));
     } else {
-        print!("{HELP}");
+        println!("Definition for {word} not found.");
     }
 }
 
@@ -59,6 +62,5 @@ fn try_define_urban(word: &str) {
         print!("{definitions}");
     } else {
         println!("Urban Dictionary failed to make a connection. Please try again later.");
-        print!("{HELP}");
     }
 }
