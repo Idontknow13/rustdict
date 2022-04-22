@@ -31,10 +31,16 @@ impl Display for Word {
     fn fmt(&self, fmtr: &mut Formatter) -> std::fmt::Result {
         writeln!(fmtr)?;
 
+        write!(fmtr, "{}    ", print_colored(self.word.as_str()))?;
+
         for phonetic in self.phonetics.iter() {
             if let Some(phoneme) = &phonetic.text {
-                writeln!(fmtr, "{}   {}", print_colored(self.word.as_str()), phoneme)?;
+                writeln!(fmtr, "{}", phoneme)?;
+                continue;
             }
+        }
+        if self.phonetics.is_empty() {
+            writeln!(fmtr)?;
         }
 
         for meaning in self.meanings.iter() {
@@ -43,6 +49,8 @@ impl Display for Word {
             for (num, definition) in meaning.definitions.iter().enumerate() {
                 writeln!(fmtr, "  {}: {}", num + 1, definition.definition)?;
             }
+            writeln!(fmtr, "\nSynonyms: {}", meaning.synonyms.join(", "))?;
+            writeln!(fmtr, "Antonyms: {}", meaning.antonyms.join(", "))?;
         }
 
         Ok(())
