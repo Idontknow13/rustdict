@@ -11,7 +11,7 @@ const HELP: &str = r#"
 RustDict - a dictionary lookup tool written in Rust.
 
 USAGE:
-    rdef [<OPTION>] [<PARAM>] [WORD]
+    rdict [<OPTION>] [<PARAM>] [WORD]
 
 OPTIONS:
     -h / --help                         Display this help message

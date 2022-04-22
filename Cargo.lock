@@ -503,6 +503,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "rdict"
+version = "0.1.0"
+dependencies = [
+ "ansi_term",
+ "reqwest",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.2.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -554,16 +564,6 @@ dependencies = [
  "wasm-bindgen-futures",
  "web-sys",
  "winreg",
-]
-
-[[package]]
-name = "rustdict"
-version = "0.1.0"
-dependencies = [
- "ansi_term",
- "reqwest",
- "serde",
- "serde_json",
 ]
 
 [[package]]
