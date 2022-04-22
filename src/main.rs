@@ -18,10 +18,10 @@ OPTIONS:
     -u / --urban                        Grab the urban dictionary definition of the word
 
 EXAMPLE USAGE:
-    rdict -h                             Prints this help message
-    rdict yester                         Defines the word "yester"
-    rdict -u ligma                       Defines "ligma" from Urban Dictionary
-    rdict -u "poison pill"               Defines "poison pill" from Urban Dictionary
+    rdef -h                             Prints this help message
+    rdef yester                         Defines the word "yester"
+    rdef -u ligma                       Defines "ligma" from Urban Dictionary
+    rdef -u "poison pill"               Defines "poison pill" from Urban Dictionary
 "#;
 
 fn main() {
