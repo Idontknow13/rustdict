@@ -44,15 +44,22 @@ impl Display for Word {
         }
 
         for meaning in self.meanings.iter() {
-            writeln!(fmtr, "- {}", meaning.part_of_speech)?;
-
-            for (num, definition) in meaning.definitions.iter().enumerate() {
-                writeln!(fmtr, "  {}: {}", num + 1, definition.definition)?;
-            }
-            writeln!(fmtr, "\nSynonyms: {}", meaning.synonyms.join(", "))?;
-            writeln!(fmtr, "Antonyms: {}", meaning.antonyms.join(", "))?;
+            writeln!(fmtr, "{meaning}")?;
         }
 
+        Ok(())
+    }
+}
+
+impl Display for Definition {
+    fn fmt(&self, fmtr: &mut Formatter) -> std::fmt::Result {
+        writeln!(fmtr, "- {}", self.part_of_speech)?;
+
+        for (num, definition) in self.definitions.iter().enumerate() {
+            writeln!(fmtr, "  {}: {}", num + 1, definition.definition)?;
+        }
+        writeln!(fmtr, "\nSynonyms: {}", self.synonyms.join(", "))?;
+        writeln!(fmtr, "Antonyms: {}", self.antonyms.join(", "))?;
         Ok(())
     }
 }
