@@ -1,4 +1,4 @@
-use crate::print_colored;
+use crate::colored_display::print_colored;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
