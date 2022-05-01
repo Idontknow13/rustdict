@@ -1,7 +1,7 @@
-mod display;
-
+use crate::print_colored;
 use serde::Deserialize;
 use std::collections::HashMap;
+use std::fmt::{Display, Formatter};
 
 //* Urban Dictionary Fields *//
 const URL: &str = "https://api.urbandictionary.com/v0/define?term=";
@@ -77,6 +77,19 @@ impl UrbanDefinition {
     }
 }
 
+impl Display for UrbanDictionary {
+    fn fmt(&self, fmtr: &mut Formatter) -> std::fmt::Result {
+        writeln!(fmtr)?;
+
+        writeln!(fmtr, "{}", print_colored(self.get_word().as_str()))?;
+        for (author, definition) in self.get_definitions().iter() {
+            writeln!(fmtr, "    - {definition} (by: {author})")?;
+        }
+
+        Ok(())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -97,7 +110,7 @@ mod tests {
         ]
     }"#;
 
-    fn define_urban(response: &str) -> UrbanDictionary {
+    fn mock_define_urban(response: &str) -> UrbanDictionary {
         let mut parsed_data: UrbanDictionary =
             serde_json::from_str(response).expect("Test String failed to parse");
         parsed_data.word = parsed_data.definitions[0].get_word();
@@ -106,13 +119,13 @@ mod tests {
 
     #[test]
     fn get_word_should_work() {
-        let data = define_urban(FAKE_DATA);
+        let data = mock_define_urban(FAKE_DATA);
         assert_eq!("faux".to_string(), data.get_word());
     }
 
     #[test]
     fn get_definition_by_author() {
-        let data = define_urban(FAKE_DATA);
+        let data = mock_define_urban(FAKE_DATA);
         assert_eq!(
             "Fake definition.".to_string(),
             data.get_definitions()["fake1"]
@@ -126,7 +139,7 @@ mod tests {
     #[test]
     fn correct_definition_count() {
         let mut counter = 0u8;
-        let data = define_urban(FAKE_DATA);
+        let data = mock_define_urban(FAKE_DATA);
         for _ in data.get_definitions().keys() {
             counter += 1;
         }
