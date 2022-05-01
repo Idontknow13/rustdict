@@ -4,9 +4,6 @@ use data::*;
 use ansi_term::Colour;
 use std::fmt::{Display, Formatter};
 
-const YELLOW: Colour = Colour::RGB(255, 255, 128);
-const VIOLET: Colour = Colour::RGB(102, 0, 255);
-
 pub fn define(word: &str) -> Result<Vec<Word>, Box<dyn std::error::Error>> {
     let request_url = format!("https://api.dictionaryapi.dev/api/v2/entries/en/{word}");
     let response = reqwest::blocking::get(request_url)?.text()?;
@@ -15,13 +12,8 @@ pub fn define(word: &str) -> Result<Vec<Word>, Box<dyn std::error::Error>> {
     Ok(data)
 }
 
-pub fn define_urban(word: &str) -> Result<UrbanContainer, Box<dyn std::error::Error>> {
-    let request_url = format!("https://api.urbandictionary.com/v0/define?term={word}");
-    let response = reqwest::blocking::get(request_url)?.text()?;
-
-    let data: UrbanContainer = serde_json::from_str(response.as_str())?;
-    Ok(data)
-}
+const YELLOW: Colour = Colour::RGB(255, 255, 128);
+const VIOLET: Colour = Colour::RGB(102, 0, 255);
 
 pub fn print_colored(msg: &str) -> ansi_term::ANSIGenericString<'_, str> {
     YELLOW.bold().on(VIOLET).paint(format!(" {msg} "))
@@ -60,30 +52,6 @@ impl Display for Definition {
         }
         writeln!(fmtr, "\nSynonyms: {}", self.synonyms.join(", "))?;
         writeln!(fmtr, "Antonyms: {}", self.antonyms.join(", "))?;
-        Ok(())
-    }
-}
-
-impl Display for UrbanContainer {
-    fn fmt(&self, fmtr: &mut Formatter) -> std::fmt::Result {
-        writeln!(fmtr)?;
-
-        let main_word = &self.definitions[0].word;
-        writeln!(fmtr, "{}", print_colored(main_word))?;
-
-        for definition in self.definitions.iter() {
-            let clean_definition = definition
-                .definition
-                .chars()
-                .filter(|chr| !(chr == &'\r' || chr == &'\n' || chr == &'[' || chr == &']'))
-                .collect::<String>();
-            writeln!(
-                fmtr,
-                "  ー {} (by: {})",
-                clean_definition, definition.author
-            )?;
-        }
-
         Ok(())
     }
 }

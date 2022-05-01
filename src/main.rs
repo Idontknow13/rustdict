@@ -5,7 +5,8 @@
 //! app.
 //!
 
-mod api;
+mod dictionary;
+mod urban_dictionary;
 
 const HELP: &str = r#"
 RustDict - a dictionary lookup tool written in Rust.
@@ -30,6 +31,10 @@ fn main() {
 }
 
 fn cli(args: &[String]) {
+    if args.is_empty() {
+        print!("{HELP}");
+        return;
+    }
     if args.len() == 1 {
         match args[0].as_str() {
             "-h" | "--help" => print!("{HELP}"),
@@ -48,7 +53,7 @@ fn argparse(args: &[String]) {
 }
 
 fn try_define(word: &str) {
-    if let Ok(definitions) = api::define(word) {
+    if let Ok(definitions) = dictionary::define(word) {
         definitions
             .iter()
             .for_each(|definition| print!("{definition}"));
@@ -58,7 +63,7 @@ fn try_define(word: &str) {
 }
 
 fn try_define_urban(word: &str) {
-    if let Ok(definitions) = api::define_urban(word) {
+    if let Ok(definitions) = urban_dictionary::define(word) {
         print!("{definitions}");
     } else {
         println!("Urban Dictionary failed to make a connection. Please try again later.");
