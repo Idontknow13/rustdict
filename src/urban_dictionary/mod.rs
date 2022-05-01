@@ -39,10 +39,14 @@ pub fn define(word: &str) -> Result<UrbanDictionary, Error> {
 }
 
 impl UrbanDictionary {
+    /// Grabs the main word defined in the dictionary.
     pub fn get_word(&self) -> String {
         self.word.clone()
     }
 
+    /// Grabs a hashmap of the definitions containing
+    /// the keys as the definition authors and the values
+    /// as the actual definitions themselves.
     pub fn get_definitions(&self) -> HashMap<String, String> {
         let mut definition_map = HashMap::new();
         for def_object in self.definitions.iter() {
@@ -58,13 +62,16 @@ impl UrbanDefinition {
         self.word.clone()
     }
 
+    /// Filters the definition and returns a
+    /// clean string.
     fn get_definition(&self) -> String {
         self.definition
             .chars()
-            .filter(|chr| chr != &'\r' && chr != &'\n' && chr != &'[' && chr != &']')
+            .filter(|chr| !(chr == &'\r' || chr == &'\n' || chr == &'[' || chr == &']'))
             .collect()
     }
 
+    /// Gets the author of the definition.
     fn get_author(&self) -> String {
         self.author.clone()
     }
