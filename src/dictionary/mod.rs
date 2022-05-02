@@ -9,7 +9,7 @@ use std::fmt::{Display, Formatter};
 pub struct Word {
     word: String,
     phonetics: Vec<Phonetics>,
-    meanings: Vec<Definitions>,
+    meanings: Vec<Meaning>,
     #[serde(rename = "sourceUrls")]
     read_more: Vec<String>,
 }
@@ -25,19 +25,19 @@ struct Phonetics {
 /// the word. Contains the part of speech, the exact
 /// definition of the word, its synonyms and its antonyms.
 #[derive(Debug, Deserialize)]
-struct Definitions {
+struct Meaning {
     #[serde(rename = "partOfSpeech")]
     part_of_speech: String,
-    definitions: Vec<Meaning>,
+    definitions: Vec<DefinitionString>,
     synonyms: Vec<String>,
     antonyms: Vec<String>,
 }
 
 /// A container struct holding the exact definition of the word.
 #[derive(Debug, Deserialize)]
-struct Meaning {
+struct DefinitionString {
     #[serde(rename = "definition")]
-    meaning: String,
+    definition_str: String,
 }
 
 const URL: &str = "https://api.dictionaryapi.dev/api/v2/entries/en/";
@@ -49,11 +49,16 @@ pub fn define(word: &str) -> Result<Vec<Word>, Error> {
     Ok(serde_json::from_str(response.as_str())?)
 }
 
+pub enum Semantic {
+    Synonym,
+    Antonym,
+}
+
 impl Word {
     pub fn get_word(&self) -> String {
         self.word.clone()
     }
-
+    /// Returns a list of
     pub fn get_phonetics(&self) -> Vec<String> {
         let mut phonetic_strings = vec![];
         for ph in self.phonetics.iter() {
@@ -64,17 +69,13 @@ impl Word {
         phonetic_strings
     }
 
-    pub fn get_synonyms(&self) -> Vec<String> {
+    pub fn get_semantics(&self, semantic: Semantic) -> Vec<String> {
         self.meanings
             .iter()
-            .flat_map(|def| def.synonyms.clone())
-            .collect()
-    }
-
-    pub fn get_antonyms(&self) -> Vec<String> {
-        self.meanings
-            .iter()
-            .flat_map(|def| def.antonyms.clone())
+            .flat_map(|meaning| match semantic {
+                Semantic::Synonym => meaning.get_synonyms(),
+                Semantic::Antonym => meaning.get_antonyms(),
+            })
             .collect()
     }
 
@@ -83,13 +84,20 @@ impl Word {
     }
 }
 
-impl Definitions {
+impl Meaning {
     fn get_meanings(&self) -> Vec<String> {
         let mut meaning_list = vec![];
         for meaning in self.definitions.iter() {
-            meaning_list.push(meaning.meaning.clone());
+            meaning_list.push(meaning.definition_str.clone());
         }
         meaning_list
+    }
+
+    fn get_synonyms(&self) -> Vec<String> {
+        self.synonyms.clone()
+    }
+    fn get_antonyms(&self) -> Vec<String> {
+        self.antonyms.clone()
     }
 }
 
@@ -151,11 +159,11 @@ mod tests {
         assert_eq!(vec!["/fo:/".to_string()], data.get_phonetics());
         assert_eq!(
             vec!["fake".to_string(), "fraudulent".to_string()],
-            data.get_synonyms()
+            data.get_semantics(Semantic::Synonym)
         );
         assert_eq!(
             vec!["authentic".to_string(), "real".to_string()],
-            data.get_antonyms()
+            data.get_semantics(Semantic::Antonym)
         );
         assert_eq!(
             vec!["https://example.com".to_string()],
@@ -178,7 +186,7 @@ mod tests {
         }
         "#;
 
-        let data: Definitions =
+        let data: Meaning =
             serde_json::from_str(FAKE_DEFINITION).expect("Test String failed to parse");
 
         assert_eq!(vec!["lmao.".to_string()], data.get_meanings());
