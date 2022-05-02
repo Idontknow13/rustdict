@@ -69,7 +69,7 @@ impl WordDefinition {
         phonetic_strings
     }
 
-    pub fn get_semantics(&self, semantic: Semantic) -> Vec<String> {
+    pub fn get_semantics(&self, semantic: &Semantic) -> Vec<String> {
         self.meanings
             .iter()
             .flat_map(|meaning| match semantic {
@@ -159,11 +159,11 @@ mod tests {
         assert_eq!(vec!["/fo:/".to_string()], data.get_phonetics());
         assert_eq!(
             vec!["fake".to_string(), "fraudulent".to_string()],
-            data.get_semantics(Semantic::Synonym)
+            data.get_semantics(&Semantic::Synonym)
         );
         assert_eq!(
             vec!["authentic".to_string(), "real".to_string()],
-            data.get_semantics(Semantic::Antonym)
+            data.get_semantics(&Semantic::Antonym)
         );
         assert_eq!(
             vec!["https://example.com".to_string()],
