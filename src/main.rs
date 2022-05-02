@@ -8,6 +8,7 @@
 mod colored_display;
 mod dictionary;
 mod urban_dictionary;
+use dictionary::Semantic;
 
 const HELP: &str = r#"
 RustDict - a dictionary lookup tool written in Rust.
@@ -49,24 +50,34 @@ fn cli(args: &[String]) {
 fn argparse(args: &[String]) {
     match args[0].as_str() {
         "-u" | "--urban" => try_define_urban(args[1].as_str()),
+        "-s" | "--syn" => try_get_semantics(args[1].as_str(), Semantic::Synonym),
+        "-a" | "--ant" => try_get_semantics(args[1].as_str(), Semantic::Antonym),
         _ => print!("{HELP}"),
     }
 }
 
+//* Definition Wrappers *//
+
 fn try_define(word: &str) {
-    if let Ok(definitions) = dictionary::define(word) {
-        definitions
-            .iter()
-            .for_each(|definition| print!("{definition}"));
-    } else {
-        println!("Definition for {word} not found.");
+    match dictionary::define(word) {
+        Ok(definitions) => {
+            for def in definitions.iter() {
+                print!("{def}");
+            }
+        }
+        Err(_) => println!("Definition for {word} not found."),
     }
 }
 
 fn try_define_urban(word: &str) {
-    if let Ok(definitions) = urban_dictionary::define(word) {
-        print!("{definitions}");
-    } else {
-        println!("Urban Dictionary failed to make a connection. Please try again later.");
+    match urban_dictionary::define(word) {
+        Ok(dictionary_def) => print!("{dictionary_def}"),
+        Err(_) => println!("Urban Dictionary failed to make a connection. Please try again later."),
     }
+}
+
+//* Semantic Wrappers *//
+
+fn try_get_semantics(word: &str, semantic: Semantic) {
+    if let Ok(definitions) = dictionary::define(word) {}
 }
