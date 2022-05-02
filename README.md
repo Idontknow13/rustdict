@@ -13,4 +13,5 @@ Just download the prebuilt from [releases](https://github.com/Idontknow13/rustdi
 ## TODO
 
 - [ ] : Add color customization for the word
+- [ ] : Add argument chaning (i.e.: `-as / -sa`)
 - [ ] : Further optimizations if possible
