@@ -19,12 +19,13 @@ USAGE:
 OPTIONS:
     -h / --help                         Display this help message
     -u / --urban                        Grab the urban dictionary definition of the word
+    -s / --syn                          Grab the definition of the word + its synonyms
+    -a / --ant                          Grab the definition of the word + its antonyms
 
 EXAMPLE USAGE:
-    rdict -h                             Prints this help message
-    rdict yester                         Defines the word "yester"
-    rdict -u ligma                       Defines "ligma" from Urban Dictionary
-    rdict -u "poison pill"               Defines "poison pill" from Urban Dictionary
+    rdict yester                        Defines the word "yester"
+    rdict -u "poison pill"              Defines "poison pill" from Urban Dictionary
+    rdict -s coward                     Defines coward and grabs its synonyms
 "#;
 
 fn main() {
@@ -61,8 +62,8 @@ fn argparse(args: &[String]) {
 fn try_define(word: &str) {
     match dictionary::define(word) {
         Ok(definitions) => {
-            for def in definitions.iter() {
-                print!("{def}");
+            for definition in definitions.iter() {
+                print!("{definition}");
             }
         }
         Err(_) => println!("Definition for {word} not found."),
@@ -79,5 +80,25 @@ fn try_define_urban(word: &str) {
 //* Semantic Wrappers *//
 
 fn try_get_semantics(word: &str, semantic: Semantic) {
-    if let Ok(definitions) = dictionary::define(word) {}
+    let definitions = match dictionary::define(word) {
+        Ok(definitions) => definitions,
+        Err(_) => {
+            println!("Definition for {word} not found.");
+            return;
+        }
+    };
+
+    for definition in definitions {
+        print!("{definition}");
+        match semantic {
+            Semantic::Synonym => {
+                let synonyms = definition.get_semantics(&semantic);
+                println!("Synonyms: {synonyms:?} ");
+            }
+            Semantic::Antonym => {
+                let antonyms = definition.get_semantics(&semantic);
+                println!("Antonyms: {antonyms:?} ");
+            }
+        }
+    }
 }
