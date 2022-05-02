@@ -6,7 +6,7 @@ use std::fmt::{Display, Formatter};
 /// the list of phonetic metadata, the list of meanings,
 /// and the source URLs for more information.
 #[derive(Debug, Deserialize)]
-pub struct Word {
+pub struct WordDefinition {
     word: String,
     phonetics: Vec<Phonetics>,
     meanings: Vec<Meaning>,
@@ -42,7 +42,7 @@ struct DefinitionString {
 
 const URL: &str = "https://api.dictionaryapi.dev/api/v2/entries/en/";
 type Error = Box<dyn std::error::Error>;
-pub fn define(word: &str) -> Result<Vec<Word>, Error> {
+pub fn define(word: &str) -> Result<Vec<WordDefinition>, Error> {
     let request_url = format!("{URL}{word}");
     let response = reqwest::blocking::get(request_url)?.text()?;
 
@@ -54,7 +54,7 @@ pub enum Semantic {
     Antonym,
 }
 
-impl Word {
+impl WordDefinition {
     pub fn get_word(&self) -> String {
         self.word.clone()
     }
@@ -101,7 +101,7 @@ impl Meaning {
     }
 }
 
-impl Display for Word {
+impl Display for WordDefinition {
     fn fmt(&self, fmtr: &mut Formatter) -> std::fmt::Result {
         writeln!(fmtr)?;
 
@@ -125,7 +125,7 @@ impl Display for Word {
 mod tests {
     use super::*;
 
-    fn define(response: &str) -> Vec<Word> {
+    fn define(response: &str) -> Vec<WordDefinition> {
         serde_json::from_str(response).expect("Test String failed to parse.")
     }
 
