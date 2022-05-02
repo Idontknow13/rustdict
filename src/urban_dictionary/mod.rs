@@ -4,15 +4,13 @@ use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
 
 //* Urban Dictionary Fields *//
-const URL: &str = "https://api.urbandictionary.com/v0/define?term=";
-type Error = Box<dyn std::error::Error>;
 
 /// A container for grabbing the list of definitions
 /// inside the JSON response from Urban Dictionary.
 #[derive(Clone, Debug, Deserialize)]
 pub struct UrbanDictionary {
     #[serde(skip)]
-    pub word: String,
+    word: String,
 
     #[serde(rename = "list")]
     pub definitions: Vec<UrbanDefinition>,
@@ -22,11 +20,12 @@ pub struct UrbanDictionary {
 /// wrote the definition as obtained from Urban Dictionary.
 #[derive(Clone, Debug, Deserialize)]
 pub struct UrbanDefinition {
-    word: String,
     definition: String,
     author: String,
 }
 
+const URL: &str = "https://api.urbandictionary.com/v0/define?term=";
+type Error = Box<dyn std::error::Error>;
 /// A function which takes a word and returns a list of
 /// definitions obtained from Urban Dictionary.
 pub fn define(word: &str) -> Result<UrbanDictionary, Error> {
@@ -34,7 +33,7 @@ pub fn define(word: &str) -> Result<UrbanDictionary, Error> {
     let response = reqwest::blocking::get(request_url)?.text()?;
 
     let mut parsed_resp: UrbanDictionary = serde_json::from_str(response.as_str())?;
-    parsed_resp.word = parsed_resp.definitions[0].get_word();
+    parsed_resp.word = word.to_string(); // Since at this point, the definition is guaranteed to exist.
     Ok(parsed_resp)
 }
 
@@ -49,19 +48,14 @@ impl UrbanDictionary {
     /// as the actual definitions themselves.
     pub fn get_definitions(&self) -> HashMap<String, String> {
         let mut definition_map = HashMap::new();
-        for def_object in self.definitions.iter() {
-            definition_map.insert(def_object.get_author(), def_object.get_definition());
+        for definition in self.definitions.iter() {
+            definition_map.insert(definition.get_author(), definition.get_definition());
         }
         definition_map
     }
 }
 
 impl UrbanDefinition {
-    /// Gets the word defined by the definition
-    fn get_word(&self) -> String {
-        self.word.clone()
-    }
-
     /// Filters the definition and returns a
     /// clean string.
     fn get_definition(&self) -> String {
@@ -111,16 +105,9 @@ mod tests {
     }"#;
 
     fn mock_define_urban(response: &str) -> UrbanDictionary {
-        let mut parsed_data: UrbanDictionary =
+        let parsed_data: UrbanDictionary =
             serde_json::from_str(response).expect("Test String failed to parse");
-        parsed_data.word = parsed_data.definitions[0].get_word();
         parsed_data
-    }
-
-    #[test]
-    fn get_word_should_work() {
-        let data = mock_define_urban(FAKE_DATA);
-        assert_eq!("faux".to_string(), data.get_word());
     }
 
     #[test]
