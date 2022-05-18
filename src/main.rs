@@ -5,13 +5,17 @@
 //! app.
 //!
 
-use clap::Parser;
-
 mod colored_display;
 mod dictionary;
+mod stardict;
 mod urban_dictionary;
+
+use clap::Parser;
 use dictionary::Semantic;
 
+/// A dictionary CLI tool written in Rust
+/// insired by BetaPictoris' dict as well as
+/// Matthew Hartman's Word Lookup tool.
 #[derive(Parser)]
 struct Cli {
     /// The word you want to search the definition of
@@ -21,13 +25,13 @@ struct Cli {
     #[clap(short, long)]
     urban: bool,
 
-    /// Enable synonyms
-    #[clap(short, long)]
-    synonym: bool,
+    /// Enable synonyms (will be prioritized over antonyms)
+    #[clap(short, long = "syn")]
+    synonyms: bool,
 
     /// Enable antonyms
-    #[clap(short, long)]
-    antonym: bool,
+    #[clap(short, long = "ant")]
+    antonyms: bool,
 }
 
 fn main() {
@@ -38,7 +42,7 @@ fn main() {
         try_define(&args.word);
     }
 
-    let semantic = match (args.synonym, args.antonym) {
+    let semantic = match (args.synonyms, args.antonyms) {
         (true, _) => Semantic::Synonym,
         (_, true) => Semantic::Antonym,
         (false, false) => return,
@@ -46,33 +50,24 @@ fn main() {
     try_get_semantics(&args.word, semantic);
 }
 
-// fn argparse(args: &[String]) {
-//     match args[0].as_str() {
-//         "-u" | "--urban" => try_define_urban(args[1].as_str()),
-//         "-s" | "--syn" => try_get_semantics(args[1].as_str(), Semantic::Synonym),
-//         "-a" | "--ant" => try_get_semantics(args[1].as_str(), Semantic::Antonym),
-//         _ => print!("{HELP}"),
-//     }
-// }
-
 //* Definition Wrappers *//
 
 fn try_define(word: &str) {
-    match dictionary::define(word) {
-        Ok(definitions) => {
-            for definition in definitions.iter() {
-                print!("{definition}");
-            }
+    if let Ok(definitions) = dictionary::define(word) {
+        for definition in definitions.iter() {
+            print!("{definition}");
         }
-        Err(_) => println!("Definition for {word} not found."),
+        return;
     }
+    println!("Definition for {word} not found.");
 }
 
 fn try_define_urban(word: &str) {
-    match urban_dictionary::define(word) {
-        Ok(dictionary_def) => print!("{dictionary_def}"),
-        Err(_) => println!("Urban Dictionary failed to make a connection. Please try again later."),
+    if let Ok(dictionary_def) = urban_dictionary::define(word) {
+        print!("{dictionary_def}");
+        return;
     }
+    println!("Urban Dictionary failed to make a connection. Please try again later.");
 }
 
 //* Semantic Wrappers *//
@@ -86,7 +81,7 @@ fn try_get_semantics(word: &str, semantic: Semantic) {
         }
     };
 
-    for definition in definitions {
+    for definition in definitions.iter() {
         print!("{definition}");
         match semantic {
             Semantic::Synonym => {
