@@ -5,57 +5,55 @@
 //! app.
 //!
 
+use clap::Parser;
+
 mod colored_display;
 mod dictionary;
 mod urban_dictionary;
 use dictionary::Semantic;
 
-const HELP: &str = r#"
-RustDict - a dictionary lookup tool written in Rust.
+#[derive(Parser)]
+struct Cli {
+    /// The word you want to search the definition of
+    word: String,
 
-USAGE:
-    rdict [<OPTION>] [<PARAM>] [WORD]
+    /// Search in Urban Dictionary
+    #[clap(short, long)]
+    urban: bool,
 
-OPTIONS:
-    -h / --help                         Display this help message
-    -u / --urban                        Grab the urban dictionary definition of the word
-    -s / --syn                          Grab the definition of the word + its synonyms
-    -a / --ant                          Grab the definition of the word + its antonyms
+    /// Enable synonyms
+    #[clap(short, long)]
+    synonym: bool,
 
-EXAMPLE USAGE:
-    rdict yester                        Defines the word "yester"
-    rdict -u "poison pill"              Defines "poison pill" from Urban Dictionary
-    rdict -s coward                     Defines coward and grabs its synonyms
-"#;
+    /// Enable antonyms
+    #[clap(short, long)]
+    antonym: bool,
+}
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    cli(&args[1..]);
+    let args = Cli::parse();
+    if args.urban {
+        try_define_urban(&args.word);
+    } else {
+        try_define(&args.word);
+    }
+
+    let semantic = match (args.synonym, args.antonym) {
+        (true, _) => Semantic::Synonym,
+        (_, true) => Semantic::Antonym,
+        (false, false) => return,
+    };
+    try_get_semantics(&args.word, semantic);
 }
 
-fn cli(args: &[String]) {
-    if args.is_empty() {
-        print!("{HELP}");
-        return;
-    }
-    if args.len() == 1 {
-        match args[0].as_str() {
-            "-h" | "--help" => print!("{HELP}"),
-            _ => try_define(args[0].as_str()),
-        }
-        return;
-    }
-    argparse(args)
-}
-
-fn argparse(args: &[String]) {
-    match args[0].as_str() {
-        "-u" | "--urban" => try_define_urban(args[1].as_str()),
-        "-s" | "--syn" => try_get_semantics(args[1].as_str(), Semantic::Synonym),
-        "-a" | "--ant" => try_get_semantics(args[1].as_str(), Semantic::Antonym),
-        _ => print!("{HELP}"),
-    }
-}
+// fn argparse(args: &[String]) {
+//     match args[0].as_str() {
+//         "-u" | "--urban" => try_define_urban(args[1].as_str()),
+//         "-s" | "--syn" => try_get_semantics(args[1].as_str(), Semantic::Synonym),
+//         "-a" | "--ant" => try_get_semantics(args[1].as_str(), Semantic::Antonym),
+//         _ => print!("{HELP}"),
+//     }
+// }
 
 //* Definition Wrappers *//
 
