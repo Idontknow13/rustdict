@@ -34,13 +34,13 @@ struct Dictionary {}
 /// sametypesequence=!req(important)
 ///
 #[derive(Debug, PartialEq, Default)]
-struct SDifo {
+pub struct SDifo {
     // Required fields
     version: String,
     bookname: String,
     wordcount: u32,
     idxfilesize: usize,
-    sametypesequence: String,
+    sametypesequence: char,
     // Optional fields
     synwordcount: Option<usize>,
     idxoffsetbits: Option<usize>,
@@ -52,6 +52,7 @@ struct SDifo {
 }
 
 impl SDifo {
+    /// Creates a new SDifo object.
     pub fn new(dict_prefix: &str) -> StardictResult<Self> {
         let mut _self = Self::default();
         let mut config = BTreeMap::new();
@@ -88,7 +89,9 @@ impl SDifo {
         _self.sametypesequence = config
             .get("sametypesequence")
             .expect("Sametypesequence is highly required.")
-            .clone();
+            .chars()
+            .next()
+            .expect("Sametypesequence should yield a character");
         // Optional fields
         if _self.version == "3.0.0" {
             _self.synwordcount = Some(
@@ -116,11 +119,30 @@ impl SDifo {
 
 #[cfg(test)]
 mod tests {
-    const TESTDIR: &str = "src/testdata/";
-    const DICTNAME: &str = "EnglishEtymology";
+    use super::*;
+
+    // const TESTDIR: &str = "src/testdata";
+    const FILEDIR: &str = "src/testdata/stardict-EnglishEtymology-2.4.2/EnglishEtymology";
 
     #[test]
     fn ifo_parser_test() {
-        assert_eq!(2 + 2, 4);
+        let ifo = SDifo::new(FILEDIR).expect("File should parse properly");
+        assert_eq!(ifo.version, "2.4.2");
+        assert_eq!(ifo.wordcount, 18380);
+        assert_eq!(ifo.idxfilesize, 303020);
+        assert_eq!(ifo.bookname, "English Etymology");
+        assert_eq!(ifo.sametypesequence, 'm');
     }
+
+    #[test]
+    #[ignore]
+    fn idx_parser_test() {}
+
+    #[test]
+    #[ignore]
+    fn dict_parser_test() {}
+
+    #[test]
+    #[ignore]
+    fn dictionary_test() {}
 }
