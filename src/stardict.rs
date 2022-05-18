@@ -1,3 +1,14 @@
+mod errors;
+
+use errors::StardictError;
+use std::{
+    collections::BTreeMap,
+    fs::File,
+    io::{BufRead, BufReader},
+};
+
+type StardictResult<T> = std::result::Result<T, StardictError>;
+
 /// A struct for manipulating StarDict dictionaries.
 struct Dictionary {}
 
@@ -40,19 +51,76 @@ struct SDifo {
     date: Option<String>,
 }
 
-impl<'a> SDifo {
-    pub fn new(dict_prefix: &'a str) -> Self {
-        let mut ifo_object = Self::default();
+impl SDifo {
+    pub fn new(dict_prefix: &str) -> StardictResult<Self> {
+        let mut _self = Self::default();
+        let mut config = BTreeMap::new();
         let filename = format!("{dict_prefix}.ifo");
 
-        ifo_object
+        let ifo = File::open(filename)?;
+        let ifo_reader = BufReader::new(ifo);
+
+        // Create config with fields
+        for (index, line) in ifo_reader.lines().enumerate() {
+            if index == 0 {
+                continue; // Skips header
+            }
+            if let Ok(l) = line {
+                let pair: Vec<&str> = l.split('=').map(|s| s.trim_end()).collect();
+                config.insert(pair[0].to_string(), pair[1].to_string());
+            }
+        }
+
+        // Required fields
+        _self.version = config.get("version").expect("Version is required.").clone();
+        _self.bookname = config
+            .get("bookname")
+            .expect("Bookname is required.")
+            .clone();
+        _self.wordcount = config
+            .get("wordcount")
+            .expect("Wordcount is required.")
+            .parse()?;
+        _self.idxfilesize = config
+            .get("idxfilesize")
+            .expect("Idxfilesize is required.")
+            .parse()?;
+        _self.sametypesequence = config
+            .get("sametypesequence")
+            .expect("Sametypesequence is highly required.")
+            .clone();
+        // Optional fields
+        if _self.version == "3.0.0" {
+            _self.synwordcount = Some(
+                config
+                    .get("synwordcount")
+                    .expect("Synwordcount is required at 3.0.0")
+                    .parse()?,
+            );
+            _self.idxoffsetbits = Some(
+                config
+                    .get("idxoffsetbits")
+                    .unwrap_or(&"32".to_string())
+                    .parse()?,
+            );
+        }
+        _self.author = Some(config.get("author").unwrap_or(&"".to_string()).to_string());
+        _self.email = Some(config.get("email").unwrap_or(&"".to_string()).to_string());
+        _self.website = Some(config.get("website").unwrap_or(&"".to_string()).to_string());
+        _self.desc = Some(config.get("desc").unwrap_or(&"".to_string()).to_string());
+        _self.date = Some(config.get("date").unwrap_or(&"".to_string()).to_string());
+
+        Ok(_self)
     }
 }
 
 #[cfg(test)]
 mod tests {
+    const TESTDIR: &str = "src/testdata/";
+    const DICTNAME: &str = "EnglishEtymology";
+
     #[test]
-    fn it_works() {
+    fn ifo_parser_test() {
         assert_eq!(2 + 2, 4);
     }
 }
