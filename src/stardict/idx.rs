@@ -2,10 +2,21 @@
 //!
 
 use super::{Stardict, StardictResult};
+use packed_struct::prelude::*;
 use std::{collections::BTreeMap, fs::File, io::Read};
 
-type Word = Vec<u8>;
-type Cords = Vec<u8>;
+/// A struct unpacking the `cords` group of bits
+#[derive(PackedStruct)]
+#[packed_struct(endian = "msb", bit_numbering = "msb0")]
+pub struct Cords32bit {
+    #[packed_field(bytes = "0..4")]
+    pub offset: u32,
+    #[packed_field(bytes = "4..8")]
+    pub data_size: u32,
+}
+
+// TODO: Implement 64-bit Cords
+
 /// A struct parsing a StarDict .idx file.
 ///
 /// An .idx is a sorted list of word entries,
@@ -16,7 +27,7 @@ type Cords = Vec<u8>;
 #[derive(Default)]
 pub struct SDidx {
     pub idx: Vec<u8>,
-    pub idx_content: BTreeMap<Word, Cords>,
+    pub idx_content: BTreeMap<String, Cords32bit>,
 }
 
 impl SDidx {
@@ -61,8 +72,7 @@ impl SDidx {
         file.read_to_end(&mut idx)?;
 
         let mut idx_content = BTreeMap::new();
-        let idx_offset_bytes_size = container.ifo.idxoffsetbits / 8;
-        let idx_cords_bytes_size = idx_offset_bytes_size + 4;
+        let idx_cords_bytes_size = (container.ifo.idxoffsetbits + 32) / 8;
 
         // Parse data with byte functions
         let mut words: Vec<Vec<u8>> = vec![];
@@ -79,11 +89,25 @@ impl SDidx {
 
         // Parse each record
         for word in words.iter() {
-            let (word, cords) = Self::split_at_null(word);
-            idx_content.insert(word.to_vec(), cords.to_vec());
+            let (word, cord_bytes) = Self::split_at_null(word);
+
+            let cords = Cords32bit::unpack_from_slice(cord_bytes)?;
+
+            idx_content.insert(String::from_utf8(word.to_vec())?, cords);
         }
 
         Ok(Self { idx, idx_content })
+    }
+    pub fn keys(&self) -> Vec<String> {
+        self.idx_content.keys().cloned().collect()
+    }
+}
+
+impl<'a> std::ops::Index<&'a str> for SDidx {
+    type Output = Cords32bit;
+
+    fn index(&self, index: &str) -> &Self::Output {
+        &self.idx_content[index]
     }
 }
 
@@ -99,7 +123,7 @@ mod tests {
             in_memory: false,
             ifo: crate::stardict::ifo::SDifo::new(FILEDIR).expect("File should parse properly"),
             idx: SDidx::default(),
-            dict: crate::stardict::SDdict {},
+            dict: crate::stardict::dict::SDdict::default(),
             syn: None,
             cache: BTreeMap::new(),
         };

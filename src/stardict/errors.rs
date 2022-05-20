@@ -10,19 +10,23 @@ use std::{
 /// the Stardict parser.
 #[derive(Debug)]
 pub enum StardictError {
-    IOError(std::io::Error),
-    ParseIntError(std::num::ParseIntError),
-    InvalidByteError(&'static str),
-    WordCountError(&'static str),
+    IO(std::io::Error),
+    ParseInt(std::num::ParseIntError),
+    InvalidByte(&'static str),
+    WordCount(&'static str),
+    FromUtf8(std::string::FromUtf8Error),
+    Unpacking(packed_struct::PackingError),
 }
 
 impl Display for StardictError {
     fn fmt(&self, fmt: &mut Formatter) -> std::fmt::Result {
         match self {
-            StardictError::IOError(e) => write!(fmt, "IOError: {e}"),
-            StardictError::ParseIntError(e) => write!(fmt, "ParseIntError: {e}"),
-            StardictError::InvalidByteError(e) => write!(fmt, "InvalidByteError: {e}"),
-            StardictError::WordCountError(e) => write!(fmt, "WordCountError: {e}"),
+            StardictError::IO(e) => write!(fmt, "IOError: {e}"),
+            StardictError::ParseInt(e) => write!(fmt, "ParseIntError: {e}"),
+            StardictError::InvalidByte(e) => write!(fmt, "InvalidByteError: {e}"),
+            StardictError::WordCount(e) => write!(fmt, "WordCountError: {e}"),
+            StardictError::FromUtf8(e) => write!(fmt, "FromUTF8Error: {e}"),
+            StardictError::Unpacking(e) => write!(fmt, "UnpackingError: {e}"),
         }
     }
 }
@@ -31,12 +35,24 @@ impl Error for StardictError {}
 
 impl From<std::io::Error> for StardictError {
     fn from(err: std::io::Error) -> Self {
-        Self::IOError(err)
+        Self::IO(err)
     }
 }
 
 impl From<std::num::ParseIntError> for StardictError {
     fn from(err: std::num::ParseIntError) -> Self {
-        Self::ParseIntError(err)
+        Self::ParseInt(err)
+    }
+}
+
+impl From<std::string::FromUtf8Error> for StardictError {
+    fn from(err: std::string::FromUtf8Error) -> Self {
+        Self::FromUtf8(err)
+    }
+}
+
+impl From<packed_struct::PackingError> for StardictError {
+    fn from(err: packed_struct::PackingError) -> Self {
+        Self::Unpacking(err)
     }
 }

@@ -1,3 +1,4 @@
+pub mod dict;
 mod errors;
 pub mod idx;
 pub mod ifo;
@@ -9,18 +10,22 @@ use std::{collections::BTreeMap, fs::File, io::Read};
 type StardictResult<T> = std::result::Result<T, StardictError>;
 
 /// A struct for manipulating StarDict dictionaries.
-pub struct Stardict {
+pub struct Stardict<'dict> {
     pub in_memory: bool,
     pub ifo: ifo::SDifo,
     pub idx: idx::SDidx,
-    pub dict: SDdict,
+    pub dict: dict::SDdict<'dict>,
     pub syn: Option<syn::SDSyn>,
     pub cache: BTreeMap<String, String>,
 }
 
-impl Stardict {}
+impl Stardict<'_> {}
 
-pub struct SDdict {}
+impl Default for Stardict<'_> {
+    fn default() -> Self {
+        todo!()
+    }
+}
 
 #[cfg(test)]
 mod tests {
