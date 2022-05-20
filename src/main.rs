@@ -17,6 +17,7 @@ use dictionary::Semantic;
 /// insired by BetaPictoris' dict as well as
 /// Matthew Hartman's Word Lookup tool.
 #[derive(Parser)]
+#[clap(about, version, author)]
 struct Cli {
     /// The word you want to search the definition of
     word: String,
