@@ -9,18 +9,18 @@ use std::{collections::BTreeMap, fs::File, io::Read};
 type StardictResult<T> = std::result::Result<T, StardictError>;
 
 /// A struct for manipulating StarDict dictionaries.
-struct Stardict {
-    in_memory: bool,
-    ifo: ifo::SDifo,
-    idx: idx::SDidx,
-    dict: SDdict,
-    syn: Option<syn::SDSyn>,
-    cache: BTreeMap<String, String>,
+pub struct Stardict {
+    pub in_memory: bool,
+    pub ifo: ifo::SDifo,
+    pub idx: idx::SDidx,
+    pub dict: SDdict,
+    pub syn: Option<syn::SDSyn>,
+    pub cache: BTreeMap<String, String>,
 }
 
 impl Stardict {}
 
-struct SDdict {}
+pub struct SDdict {}
 
 #[cfg(test)]
 mod tests {
@@ -30,10 +30,10 @@ mod tests {
     const FILEDIR: &str = "src/testdata/stardict-EnglishEtymology-2.4.2/EnglishEtymology";
 
     #[test]
-    #[ignore]
+    #[ignore = "Unimplemented"]
     fn dict_parser_test() {}
 
     #[test]
-    #[ignore]
+    #[ignore = "Unimplemented"]
     fn dictionary_test() {}
 }

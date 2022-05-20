@@ -2,7 +2,7 @@
 //!
 
 use super::{Stardict, StardictResult};
-use std::{collections::BTreeMap, fs::File};
+use std::{collections::BTreeMap, fs::File, io::Read};
 
 type Word = Vec<u8>;
 type Cords = Vec<u8>;
@@ -15,8 +15,8 @@ type Cords = Vec<u8>;
 ///     - word_data_size ;; word data's total size in .dict
 #[derive(Default)]
 pub struct SDidx {
-    idx: Vec<u8>,
-    idx_content: BTreeMap<Word, Cords>,
+    pub idx: Vec<u8>,
+    pub idx_content: BTreeMap<Word, Cords>,
 }
 
 impl SDidx {
@@ -93,6 +93,7 @@ mod tests {
     const FILEDIR: &str = "src/testdata/stardict-EnglishEtymology-2.4.2/EnglishEtymology";
 
     #[test]
+    #[ignore = "Expensive test -- reads file twice."]
     fn idx_parser_test() {
         let dummy_dict = Stardict {
             in_memory: false,
